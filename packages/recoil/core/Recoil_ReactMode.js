@@ -13,7 +13,6 @@
 
 const React = require('react');
 const gkx = require('recoil-shared/util/Recoil_gkx');
-const recoverableViolation = require('recoil-shared/util/Recoil_recoverableViolation');
 
 // https://github.com/reactwg/react-18/discussions/86
 const useSyncExternalStore: <T>(
@@ -26,34 +25,11 @@ const useSyncExternalStore: <T>(
   // flowlint-next-line unclear-type:off
   (React: any).unstable_useSyncExternalStore;
 
-let ReactRendererVersionMismatchWarnOnce = false;
-
 // Check if the current renderer supports `useSyncExternalStore()`.
 // Since React goes through a proxy dispatcher and the current renderer can
 // change we can't simply check if `React.useSyncExternalStore()` is defined.
 function currentRendererSupportsUseSyncExternalStore(): boolean {
-  // $FlowFixMe[incompatible-use]
-  const {ReactCurrentDispatcher, ReactCurrentOwner} =
-    /* $FlowFixMe[prop-missing] This workaround was approved as a safer mechanism
-     * to detect if the current renderer supports useSyncExternalStore()
-     * https://fb.workplace.com/groups/reactjs/posts/9558682330846963/ */
-    React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-  const dispatcher =
-    ReactCurrentDispatcher?.current ?? ReactCurrentOwner.currentDispatcher;
-  const isUseSyncExternalStoreSupported =
-    dispatcher.useSyncExternalStore != null;
-  if (
-    useSyncExternalStore &&
-    !isUseSyncExternalStoreSupported &&
-    !ReactRendererVersionMismatchWarnOnce
-  ) {
-    ReactRendererVersionMismatchWarnOnce = true;
-    recoverableViolation(
-      'A React renderer without React 18+ API support is being used with React 18+.',
-      'recoil',
-    );
-  }
-  return isUseSyncExternalStoreSupported;
+  return true;
 }
 
 type ReactMode = 'TRANSITION_SUPPORT' | 'SYNC_EXTERNAL_STORE' | 'LEGACY';
